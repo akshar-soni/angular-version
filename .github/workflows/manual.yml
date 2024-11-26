@@ -1,4 +1,4 @@
-name: Workfow version update
+name: Update Version and Sync
 
 on:
   workflow_dispatch:
@@ -17,21 +17,43 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Load current version from environment variable
-      - name: Load Current Version
-        id: load_version
-        run: echo "CURRENT_VERSION=${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
-
-
-      # Step 5: Update GitHub Environment Variable
-      - name: Update GitHub Environment Variable
-        uses: actions/github-script@v6
+      # Step 2: Install Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          script: |
-            github.rest.actions.updateEnvironmentVariable({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              environment_name: "production",  # Replace with your environment name
-              name: "APP_VERSION",
-              value: 1.2.3
-            })
+          node-version: '16' # Ensure the Node.js version matches your project
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: Increment version using npm version
+      - name: Increment Version with npm
+        id: increment_version
+        run: |
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          
+          # Increment the version in package.json and package-lock.json
+          NEW_VERSION=$(npm version $VERSION_TYPE --no-git-tag-version)
+          
+          # Clean the 'v' prefix if present
+          CLEANED_VERSION=${NEW_VERSION#v}
+          echo "New Version: $CLEANED_VERSION"
+          echo "CLEANED_VERSION=$CLEANED_VERSION" >> $GITHUB_ENV
+
+      # Step 5: Commit and Push the Changes
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json package-lock.json
+          git commit -m "Bump version to $CLEANED_VERSION"
+          git push origin main
+
+      # Step 6: Optional - Save Version to a file in the repository
+      - name: Save Version to Repository File
+        run: |
+          echo "{\"version\": \"$CLEANED_VERSION\"}" > version.json
+          git add version.json
+          git commit -m "Update version.json to $CLEANED_VERSION"
+          git push origin main
