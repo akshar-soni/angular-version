@@ -16,6 +16,7 @@ jobs:
       # Step 1: Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v2
+        run: echo "${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
 
       # Step 2: Load current version from environment variable
       - name: Load Current Version
