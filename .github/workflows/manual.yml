@@ -8,8 +8,6 @@ on:
         required: true
         default: "patch"
         
-permissions:
-  contents: write
   
 jobs:
   update-version:
