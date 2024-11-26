@@ -27,6 +27,7 @@ jobs:
       - name: Increment Version with npm
         id: increment_version
         run: |
+          cd version-change
           ls
           VERSION_TYPE="${{ github.event.inputs.version_type }}"
           
