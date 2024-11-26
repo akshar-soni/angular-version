@@ -23,10 +23,6 @@ jobs:
         with:
           node-version: '16' # Ensure the Node.js version matches your project
 
-      # Step 3: Install dependencies
-      - name: Install Dependencies
-        run: npm install
-
       # Step 4: Increment version using npm version
       - name: Increment Version with npm
         id: increment_version
