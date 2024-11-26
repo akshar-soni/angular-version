@@ -22,26 +22,6 @@ jobs:
         id: load_version
         run: echo "CURRENT_VERSION=${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
 
-      # Step 3: Increment version with npm version
-      - name: Increment Version with npm
-        id: increment_version
-        run: |
-          # Increment the version in package.json and package-lock.json
-          NEW_VERSION=$(npm version patch --no-git-tag-version)
-          
-          # Clean the 'v' prefix if present
-          CLEANED_VERSION=${NEW_VERSION#v}
-          echo "New Version: $CLEANED_VERSION"
-          echo "CLEANED_VERSION=$CLEANED_VERSION" >> $GITHUB_ENV
-
-      # Step 4: Commit and Push the Changes
-      - name: Commit and Push Version Changes
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add package.json package-lock.json
-          git commit -m "Bump version to $CLEANED_VERSION"
-          git push origin main
 
       # Step 5: Update GitHub Environment Variable
       - name: Update GitHub Environment Variable
@@ -53,5 +33,5 @@ jobs:
               repo: context.repo.repo,
               environment_name: "production",  # Replace with your environment name
               name: "APP_VERSION",
-              value: process.env.CLEANED_VERSION
+              value: 1.2.3
             })
