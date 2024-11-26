@@ -30,7 +30,7 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "MY_SECRET_KEY=${{ secrets.MY_SECRET_KEY }}" >> $GITHUB_ENV
-          echo "CUSTOM_VAR=some_value" >> $GITHUB_ENV
+          echo "CUSTOM_VAR=123" >> $GITHUB_ENV
 
       - name: Print environment variables
         run: |
