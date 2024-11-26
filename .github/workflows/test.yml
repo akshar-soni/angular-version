@@ -1,36 +1,57 @@
-# This is a basic workflow to help you get started with Actions
+name: Update and Sync Version
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Type of version bump (patch, minor, major)"
+        required: true
+        default: "patch"
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  update-version:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # Step 2: Load current version from environment variable
+      - name: Load Current Version
+        id: load_version
+        run: echo "CURRENT_VERSION=${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # Step 3: Increment version with npm version
+      - name: Increment Version with npm
+        id: increment_version
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          NEW_VERSION=$(npm version $VERSION_TYPE --no-git-tag-version)
+
+          echo "New Version: $NEW_VERSION"
+          # Remove the 'v' prefix if npm version outputs it
+          CLEANED_VERSION=${NEW_VERSION#v}
+          echo "CLEANED_VERSION=$CLEANED_VERSION" >> $GITHUB_ENV
+
+      # Step 4: Commit and Push the Changes
+      - name: Commit and Push Version Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json package-lock.json
+          git commit -m "Bump version to $CLEANED_VERSION"
+          git push origin dev
+
+      # Step 5: Update GitHub Environment Variable
+      - name: Update GitHub Environment Variable
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.updateEnvironmentVariable({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment_name: "production",  # Replace with your environment name
+              name: "APP_VERSION",
+              value: process.env.CLEANED_VERSION
+            })
