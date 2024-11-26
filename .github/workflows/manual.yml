@@ -20,19 +20,20 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+ print-env:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # Step 2: Load current version from environment variable
-    - name: Load Current Version
-      id: load_version
-      run: echo "${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
+      - name: Set up environment variables
+        run: |
+          echo "MY_SECRET_KEY=${{ secrets.MY_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "CUSTOM_VAR=some_value" >> $GITHUB_ENV
+
+      - name: Print environment variables
+        run: |
+          echo "MY_SECRET_KEY is $MY_SECRET_KEY"
+          echo "CUSTOM_VAR is $CUSTOM_VAR"
       
