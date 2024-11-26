@@ -53,10 +53,3 @@ jobs:
           git commit -m "Bump version to $CLEANED_VERSION"
           git push origin main
 
-      # Step 6: Optional - Save Version to a file in the repository
-      - name: Save Version to Repository File
-        run: |
-          echo "{\"version\": \"$CLEANED_VERSION\"}" > version.json
-          git add version.json
-          git commit -m "Update version.json to $CLEANED_VERSION"
-          git push origin main
