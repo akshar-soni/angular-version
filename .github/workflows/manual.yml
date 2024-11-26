@@ -42,6 +42,7 @@ jobs:
       # Step 5: Commit and Push the Changes
       - name: Commit and Push Changes
         run: |
+          cd version-change
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add package.json package-lock.json
