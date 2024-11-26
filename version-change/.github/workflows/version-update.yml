@@ -1,16 +1,12 @@
 name: Update and Sync Version
 
 on:
-  workflow_dispatch:
-    inputs:
-      version_type:
-        description: "Type of version bump (patch, minor, major)"
-        required: true
-        default: "patch"
+  push:
+    branches: [dev]
 
 jobs:
   update-version:
-    runs-on: ubuntu-latest
+    runs-on: dev
 
     steps:
       # Step 1: Checkout the repository
@@ -26,12 +22,13 @@ jobs:
       - name: Increment Version with npm
         id: increment_version
         run: |
-          VERSION_TYPE="${{ github.event.inputs.version_type }}"
-          NEW_VERSION=$(npm version $VERSION_TYPE --no-git-tag-version)
-
-          echo "New Version: $NEW_VERSION"
-          # Remove the 'v' prefix if npm version outputs it
+          
+          # Increment the version in package.json and package-lock.json
+          NEW_VERSION=$(npm version patch --no-git-tag-version)
+          
+          # Clean the 'v' prefix if present
           CLEANED_VERSION=${NEW_VERSION#v}
+          echo "New Version: $CLEANED_VERSION"
           echo "CLEANED_VERSION=$CLEANED_VERSION" >> $GITHUB_ENV
 
       # Step 4: Commit and Push the Changes
@@ -41,17 +38,4 @@ jobs:
           git config user.email "actions@github.com"
           git add package.json package-lock.json
           git commit -m "Bump version to $CLEANED_VERSION"
-          git push origin dev
-
-      # Step 5: Update GitHub Environment Variable
-      - name: Update GitHub Environment Variable
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.actions.updateEnvironmentVariable({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              environment_name: "production",  # Replace with your environment name
-              name: "APP_VERSION",
-              value: process.env.CLEANED_VERSION
-            })
+          git push origin main
