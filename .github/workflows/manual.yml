@@ -28,6 +28,7 @@ jobs:
       - name: Increment Version with npm
         id: increment_version
         run: |
+          cd version-change
           VERSION_TYPE="${{ github.event.inputs.version_type }}"
           
           # Increment the version in package.json and package-lock.json
@@ -38,7 +39,6 @@ jobs:
       - name: Commit and Push Changes
         run: |
           cd version-change
-          ls
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add package.json package-lock.json
