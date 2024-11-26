@@ -15,7 +15,7 @@ jobs:
     steps:
       # Step 1: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       # Step 2: Load current version from environment variable
       - name: Load Current Version
