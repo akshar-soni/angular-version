@@ -34,5 +34,5 @@ jobs:
       # Step 2: Load current version from environment variable
     - name: Load Current Version
       id: load_version
-      run: echo "CURRENT_VERSION=${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
+      run: echo "${{ secrets.BUILD_VERSION }}" >> $GITHUB_ENV
       
