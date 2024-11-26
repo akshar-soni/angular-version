@@ -27,6 +27,7 @@ jobs:
       - name: Increment Version with npm
         id: increment_version
         run: |
+          ls
           VERSION_TYPE="${{ github.event.inputs.version_type }}"
           
           # Increment the version in package.json and package-lock.json
